@@ -30,6 +30,7 @@
 				var whereToPutIt = '#main';
 				
 				if (data[0]["type"] == "Token" || 
+				data[0]["type"] == "Skill Card" || 
 				data[0]["desc"].includes("win the Match")) {
 					console.log("Illegal card " +pc+ ", skipping...");
 					genNextCard(rand, i);
@@ -115,7 +116,8 @@
 		$('#extra').empty();
 		$('#msg').text("");
 
-		for (var i = 0; i < 5; i++) {
+		var i = 0;
+		do {
 			
 			var rndIndex = Math.floor(rand() * passcodes.length);
 			var pc = passcodes[rndIndex];
@@ -123,6 +125,8 @@
 			if (pc[0] == '0') {
 				pc = pc.substring(1,pc.length);
 			}
+
+			//todo: check card validity
 
 			$('#main').append(
 				"<a style='text-decoration:none'" +
@@ -134,7 +138,9 @@
 				"<\a>"
 			);
 
-		}
+			i++;
+
+		} while (i < 5);
 		
 		currentPackNumber += 1;
 		$('#genPackBtn').text('Generate Booster Pack ' + currentPackNumber);
