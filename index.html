@@ -14,6 +14,69 @@
 		});
 	});
 
+	function genNextCard(rand, i) {
+		
+		var rndIndex = Math.floor(rand() * passcodes.length);
+		var pc = passcodes[rndIndex];
+
+		//passcodes that start with 0 should have that 0 removed 
+		if (pc[0] == '0') {
+			pc = pc.substring(1,pc.length);
+		}
+
+		setTimeout(function(i, pc) {
+			$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + pc, function(data) {
+				
+				var whereToPutIt = '#main';
+				
+				if (data[0]["type"] == "Token" || 
+				data[0]["desc"].includes("win the Match")) {
+					console.log("Illegal card " +pc+ ", skipping...");
+					genNextCard(rand, i);
+					return;
+				}
+
+				if (data[0]["type"].includes("Synchro") ||
+				data[0]["type"].includes("Fusion") ||
+				data[0]["type"].includes("XYZ") ||
+				data[0]["type"].includes("Link")) {
+					whereToPutIt = '#extra';
+				}
+
+
+				
+				$(whereToPutIt).append(
+					"<a style='text-decoration:none'" +
+					"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
+					"<img " +
+					"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+					"height='90' " +
+					"/>" +
+					"<\a>"
+				);
+
+				if (whereToPutIt == '#main') {
+					i++;
+					if ((i) % 10 == 0) {
+						$("#main").append("<br\>");
+					}
+				}
+			
+				if (i < 40) { 
+					//console.log(i);
+					genNextCard(rand, i);
+				} else {
+					$('#msg').text("Done!");
+				}
+			});
+		}, i * 100, i, pc);
+		//20 calls allowed per second
+		//=> 50ms timeout
+		//(i use 100ms just to be sure)
+		//(generates 10 cards per second)
+	}
+
+
 	function genDeck() {
 
 		if ($.trim($('#usernameInput').val()) == '') {
@@ -26,39 +89,13 @@
 		var seed = xmur3(name);
 		var rand = sfc32(seed(), seed(), seed(), seed());
 
-		$('#cards').empty();
+		$('#main').empty();
+		$('#extra').empty();
 
-		for (var i = 0; i < 40; i++) {
-			
-			var rndIndex = Math.floor(rand() * passcodes.length);
-			var pc = passcodes[rndIndex];
 
-			//passcodes that start with 0 should have that 0 removed 
-			if (pc[0] == '0') {
-				pc = pc.substring(1,pc.length);
-			}
-
-			/*
-			$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + pc, function(data) {
-				alert("data.name");
-				//COCKBLOCKED!
-			});
-			*/
-
-			$('#cards').append(
-				"<a style='text-decoration:none'" +
-				"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
-				"<img " +
-				"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
-				"height='100' " +
-				"/>" +
-				"<\a>"
-			);
-
-			if ((i+1) % 10 == 0) {
-				$("#cards").append("<br\>");
-			}
-		}
+		$('#msg').text("Generating Deck...");
+		genNextCard(rand, 0);
+		
 	}
 
 	function genPack() {
@@ -74,7 +111,9 @@
 		var seed = xmur3(name);
 		var rand = sfc32(seed(), seed(), seed(), seed());
 
-		$('#cards').empty();
+		$('#main').empty();
+		$('#extra').empty();
+		$('#msg').text("");
 
 		for (var i = 0; i < 5; i++) {
 			
@@ -85,12 +124,12 @@
 				pc = pc.substring(1,pc.length);
 			}
 
-			$('#cards').append(
+			$('#main').append(
 				"<a style='text-decoration:none'" +
 				"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
 				"<img " +
 				"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
-				"height='100' " +
+				"height='90' " +
 				"/>" +
 				"<\a>"
 			);
@@ -99,7 +138,6 @@
 		
 		currentPackNumber += 1;
 		$('#genPackBtn').text('Generate Booster Pack ' + currentPackNumber);
-
 	}
 
 </script>
@@ -114,6 +152,8 @@
 	<button id='genDeckBtn' onclick='genDeck()'>Generate Deck</button>
 	<button id='genPackBtn' onclick='genPack()'>Generate First Booster Pack</button>
 	<div style='margin-top:5px;'></div>
-	<div id='cards'></div>
+	<div id='main'></div><br/>
+	<div id='extra'></div><br/>
+	<span id='msg'></span><br/>
 </body>
 </html>
