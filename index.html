@@ -1,0 +1,119 @@
+<script type="text/javascript" src="jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="passcodes.js"></script>
+<script type="text/javascript" src="random.js"></script>
+<script type="text/javascript">
+
+	var currentPackNumber = 1;
+	
+	$(document).ready(function() {
+		$('#usernameInput').keyup(function(event) {
+			if (event.keyCode === 13) {
+				event.preventDefault();
+				$("#genDeckBtn").click();
+			}
+		});
+	});
+
+	function genDeck() {
+
+		if ($.trim($('#usernameInput').val()) == '') {
+			alert("Enter username!");
+			return;
+		}
+
+        var name = $('#usernameInput').val();
+
+		var seed = xmur3(name);
+		var rand = sfc32(seed(), seed(), seed(), seed());
+
+		$('#cards').empty();
+
+		for (var i = 0; i < 40; i++) {
+			
+			var rndIndex = Math.floor(rand() * passcodes.length);
+			var pc = passcodes[rndIndex];
+
+			//passcodes that start with 0 should have that 0 removed 
+			if (pc[0] == '0') {
+				pc = pc.substring(1,pc.length);
+			}
+
+			/*
+			$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + pc, function(data) {
+				alert("data.name");
+				//COCKBLOCKED!
+			});
+			*/
+
+			$('#cards').append(
+				"<a style='text-decoration:none'" +
+				"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
+				"<img " +
+				"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+				"height='100' " +
+				"/>" +
+				"<\a>"
+			);
+
+			if ((i+1) % 10 == 0) {
+				$("#cards").append("<br\>");
+			}
+		}
+	}
+
+	function genPack() {
+
+		if ($.trim($('#usernameInput').val()) == '') {
+			alert("Enter username!");
+			return;
+		}
+
+        var name = $('#usernameInput').val() + currentPackNumber.toString();
+
+		console.log(name)
+		var seed = xmur3(name);
+		var rand = sfc32(seed(), seed(), seed(), seed());
+
+		$('#cards').empty();
+
+		for (var i = 0; i < 5; i++) {
+			
+			var rndIndex = Math.floor(rand() * passcodes.length);
+			var pc = passcodes[rndIndex];
+
+			if (pc[0] == '0') {
+				pc = pc.substring(1,pc.length);
+			}
+
+			$('#cards').append(
+				"<a style='text-decoration:none'" +
+				"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
+				"<img " +
+				"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+				"height='100' " +
+				"/>" +
+				"<\a>"
+			);
+
+		}
+		
+		currentPackNumber += 1;
+		$('#genPackBtn').text('Generate Booster Pack ' + currentPackNumber);
+
+	}
+
+</script>
+
+<html>
+<head>
+	<title>naziv</title>
+</head>
+<body>
+	<span>Enter your username: </span>
+	<input type='text' id='usernameInput'/>
+	<button id='genDeckBtn' onclick='genDeck()'>Generate Deck</button>
+	<button id='genPackBtn' onclick='genPack()'>Generate First Booster Pack</button>
+	<div style='margin-top:5px;'></div>
+	<div id='cards'></div>
+</body>
+</html>
