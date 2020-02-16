@@ -4,7 +4,10 @@
 <script type="text/javascript">
 
 	var currentPackNumber = 1;
-	
+	var mainString = "#created by deckbuilder\r\n#main\r\n";
+	var extraStirng = "#extra\r\n";
+	var finalString = "";
+
 	$(document).ready(function() {
 		$('#usernameInput').keyup(function(event) {
 			if (event.keyCode === 13) {
@@ -52,6 +55,7 @@
 					"<img " +
 					"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
 					"height='90' " +
+					"onmouseover='setBigImg(\""+pc+"\")'" + 
 					"/>" +
 					"<\a>"
 				);
@@ -61,12 +65,19 @@
 					if ((i) % 10 == 0) {
 						$("#main").append("<br\>");
 					}
+
+					mainString += (pc + "\r\n");
+				} else {
+					extraStirng += (pc + "\r\n");
 				}
 			
-				if (i < 40) { 
-					//console.log(i);
+				if (i < 40) {
+					$('#msg').text("Generating Deck ... ("+i+"/40)");
 					genNextCard(rand, i);
 				} else {
+					finalString = mainString + extraStirng + "!side\r\n";
+					$('#downloadDeckBtn').css('display', 'block');
+
 					$('#msg').text("Done!");
 				}
 			});
@@ -92,9 +103,9 @@
 
 		$('#main').empty();
 		$('#extra').empty();
-
-
+		$('#downloadDeckBtn').css('display', 'none');
 		$('#msg').text("Generating Deck...");
+
 		genNextCard(rand, 0);
 		
 	}
@@ -114,6 +125,7 @@
 
 		$('#main').empty();
 		$('#extra').empty();
+		$('#downloadDeckBtn').css('display', 'none');
 		$('#msg').text("");
 
 		var i = 0;
@@ -134,6 +146,7 @@
 				"<img " +
 				"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
 				"height='90' " +
+				"onmouseover='setBigImg(\""+pc+"\")'" + 
 				"/>" +
 				"<\a>"
 			);
@@ -146,6 +159,20 @@
 		$('#genPackBtn').text('Generate Booster Pack ' + currentPackNumber);
 	}
 
+	function setBigImg(pc) {
+		$('#bigImg').prop('src', 'https://ygoprodeck.com/pics/' + pc + '.jpg');
+	}
+
+	function downloadDeck() {
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(finalString));
+		element.setAttribute('download', "deck.ydk");
+		element.style.display = 'none';
+		document.body.appendChild(element);
+		element.click();
+		document.body.removeChild(element);
+  	}
+
 </script>
 
 <html>
@@ -153,6 +180,11 @@
 	<title>Deck Builder</title>
 </head>
 <body>
+	<img
+		id='bigImg'
+		style='float:right;'
+		height="500"
+		/>
 	<span>Enter your username: </span>
 	<input type='text' id='usernameInput'/>
 	<button id='genDeckBtn' onclick='genDeck()'>Generate Deck</button>
@@ -161,6 +193,7 @@
 	<div id='main'></div><br/>
 	<div id='extra'></div><br/>
 	<span id='msg'></span><br/>
+	<button id='downloadDeckBtn' onclick='downloadDeck()' style="display:none;">Download Deck</button><br/>
 	<a 
 		style='position:fixed; bottom:0; height:25px'
 		target='_blank'
