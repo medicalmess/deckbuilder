@@ -3,9 +3,9 @@
 <script type="text/javascript" src="random.js"></script>
 <script type="text/javascript">
 
-	var currentPackNumber = 1;
 	var mainString = "#created by deckbuilder\r\n#main\r\n";
 	var extraStirng = "#extra\r\n";
+	var sideString = "!side\r\n"
 	var finalString = "";
 
 	$(document).ready(function() {
@@ -17,7 +17,7 @@
 		});
 	});
 
-	function genNextCard(rand, i) {
+	function genNextCard(rand, i, ie, is) {
 		
 		var rndIndex = Math.floor(rand() * passcodes.length);
 		var pc = passcodes[rndIndex];
@@ -27,7 +27,7 @@
 			pc = pc.substring(1,pc.length);
 		}
 
-		setTimeout(function(i, pc) {
+		setTimeout(function(pc, i, ie, is) {
 			$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + pc, function(data) {
 				
 				var whereToPutIt = '#main';
@@ -36,7 +36,7 @@
 				data[0]["type"] == "Skill Card" || 
 				data[0]["desc"].includes("win the Match")) {
 					console.log("Illegal card " +pc+ ", skipping...");
-					genNextCard(rand, i);
+					genNextCard(rand, i, ie, is);
 					return;
 				}
 
@@ -49,39 +49,80 @@
 
 
 				
-				$(whereToPutIt).append(
-					"<a style='text-decoration:none'" +
-					"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
-					"<img " +
-					"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
-					"height='90' " +
-					"onmouseover='setBigImg(\""+pc+"\")'" + 
-					"/>" +
-					"<\a>"
-				);
+
 
 				if (whereToPutIt == '#main') {
-					i++;
-					if ((i) % 10 == 0) {
-						$("#main").append("<br\>");
+
+					if (i < 40) {
+						$('#main').append(
+							"<a style='text-decoration:none'" +
+							"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
+							"<img " +
+							"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+							"height='80' " +
+							"onmouseover='setBigImg(\""+pc+"\")'" + 
+							"/>" +
+							"<\a>"
+						);
+
+						i++;
+						if ((i) % 10 == 0) {
+							$("#main").append("<br\>");
+						}
+
+						mainString += (pc + "\r\n");
+
+					} else if (is < 15) {
+						$('#side').append(
+							"<a style='text-decoration:none'" +
+							"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
+							"<img " +
+							"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+							"height='80' " +
+							"onmouseover='setBigImg(\""+pc+"\")'" + 
+							"/>" +
+							"<\a>"
+						);
+
+						is++;
+						if ((is) % 10 == 0) {
+							$("#side").append("<br\>");
+						}
+
+						sideString += (pc + "\r\n");
 					}
 
-					mainString += (pc + "\r\n");
-				} else {
+				} else if (whereToPutIt == '#extra' && ie < 15) {
+
+					$('#extra').append(
+						"<a style='text-decoration:none'" +
+						"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
+						"<img " +
+						"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+						"height='80' " +
+						"onmouseover='setBigImg(\""+pc+"\")'" + 
+						"/>" +
+						"<\a>"
+					);
+
+					ie++;
+					if ((ie) % 10 == 0) {
+						$("#extra").append("<br\>");
+					}
 					extraStirng += (pc + "\r\n");
 				}
 			
-				if (i < 40) {
-					$('#msg').text("Generating Deck ... ("+i+"/40)");
-					genNextCard(rand, i);
+				if (i < 40  || ie < 15 || is < 15) {
+					$('#msg').text("Generating Deck ... (m"+i+"/e"+ie+"/s"+is+")");
+					genNextCard(rand, i, ie, is);
 				} else {
-					finalString = mainString + extraStirng + "!side\r\n";
+					finalString = mainString + extraStirng + sideString;
 					$('#downloadDeckBtn').css('display', 'block');
 
 					$('#msg').text("Done!");
 				}
 			});
-		}, i * 100, i, pc);
+		}, i * 100, pc, i, ie, is);
 		//20 calls allowed per second
 		//=> 50ms timeout
 		//(i use 100ms just to be sure)
@@ -106,7 +147,7 @@
 		$('#downloadDeckBtn').css('display', 'none');
 		$('#msg').text("Generating Deck...");
 
-		genNextCard(rand, 0);
+		genNextCard(rand, 0, 0, 0);
 		
 	}
 
@@ -117,14 +158,14 @@
 			return;
 		}
 
-        var name = $('#usernameInput').val() + currentPackNumber.toString();
+        var name = $('#usernameInput').val() + $('#packNumber').val().toString();
 
-		console.log(name)
 		var seed = xmur3(name);
 		var rand = sfc32(seed(), seed(), seed(), seed());
 
 		$('#main').empty();
 		$('#extra').empty();
+		$('#side').empty();
 		$('#downloadDeckBtn').css('display', 'none');
 		$('#msg').text("");
 
@@ -145,7 +186,7 @@
 				"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
 				"<img " +
 				"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
-				"height='90' " +
+				"height='80' " +
 				"onmouseover='setBigImg(\""+pc+"\")'" + 
 				"/>" +
 				"<\a>"
@@ -155,8 +196,9 @@
 
 		} while (i < 5);
 		
-		currentPackNumber += 1;
-		$('#genPackBtn').text('Generate Booster Pack ' + currentPackNumber);
+		var packNum = parseInt($('#packNumber').val());
+		$('#msg').text("Pack #" + packNum + " generated!");
+		$('#packNumber').val(packNum + 1);
 	}
 
 	function setBigImg(pc) {
@@ -180,23 +222,25 @@
 	<title>Deck Builder</title>
 </head>
 <body>
-	<img
-		id='bigImg'
-		style='float:right;'
-		height="500"
-		/>
+	<div
+		style='position:absolute; left:700'>
+		<a 
+			target='_blank'
+			href='https://github.com/medicalmess/deckbuilder'>source on github</a>
+		<br/>	
+		<img 
+			id='bigImg' height="500" />
+	</div>
 	<span>Enter your username: </span>
 	<input type='text' id='usernameInput'/>
 	<button id='genDeckBtn' onclick='genDeck()'>Generate Deck</button>
-	<button id='genPackBtn' onclick='genPack()'>Generate First Booster Pack</button>
+	<input id='packNumber' type="number" min="1" value="1" style='width: 50;'>
+	<button id='genPackBtn' onclick='genPack()'>Generate Next Booster Pack</button>
 	<div style='margin-top:5px;'></div>
 	<div id='main'></div><br/>
 	<div id='extra'></div><br/>
+	<div id='side'></div><br/>
 	<span id='msg'></span><br/>
 	<button id='downloadDeckBtn' onclick='downloadDeck()' style="display:none;">Download Deck</button><br/>
-	<a 
-		style='position:fixed; bottom:0; height:25px'
-		target='_blank'
-		href='https://github.com/medicalmess/deckbuilder'>source on github</a>
 </body>
 </html>
