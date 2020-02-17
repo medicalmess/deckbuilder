@@ -152,7 +152,7 @@
 				}
 
 				//rare card
-				if (i == 4 && parseInt(data[0].views) < 80000) {
+				if (i == 4 && parseInt(data[0].views) < 60000) {
 					console.log("Not a rare card (" + pc + "), skipping...");
 					getNextCardPack(rand, i);
 					return;
