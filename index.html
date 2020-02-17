@@ -151,8 +151,8 @@
 					return;
 				}
 
-				//when rolling the 5th card, don't accept it if its not at least 1$ on tcg player
-				if (i == 4 && parseFloat(data[0].card_prices["tcgplayer_price"]) < 1.0) {
+				//rare card
+				if (i == 4 && parseInt(data[0].views) < 80000) {
 					console.log("Not a rare card (" + pc + "), skipping...");
 					getNextCardPack(rand, i);
 					return;
