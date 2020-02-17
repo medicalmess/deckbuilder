@@ -92,7 +92,7 @@
 						sideString += (pc + "\r\n");
 					}
 
-				} else if (whereToPutIt == '#extra' && ie < 5) {
+				} else if (whereToPutIt == '#extra' && ie < 15) {
 
 					$('#extra').append(
 						"<a style='text-decoration:none'" +
@@ -112,7 +112,7 @@
 					extraStirng += (pc + "\r\n");
 				}
 			
-				if (i < 40  || ie < 5 || is < 15) {
+				if (i < 40  || ie < 15 || is < 15) {
 					$('#msg').text("Generating Deck ... (m"+i+"/e"+ie+"/s"+is+")");
 					genNextCard(rand, i, ie, is);
 				} else {
@@ -122,7 +122,7 @@
 					$('#msg').text("Done!");
 				}
 			});
-		}, i * 100, pc, i, ie, is);
+		}, 100, pc, i, ie, is);
 		//20 calls allowed per second
 		//=> 50ms timeout
 		//(i use 100ms just to be sure)
