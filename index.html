@@ -35,7 +35,7 @@
 				if (data[0]["type"] == "Token" || 
 				data[0]["type"] == "Skill Card" || 
 				data[0]["desc"].includes("win the Match")) {
-					console.log("Illegal card " +pc+ ", skipping...");
+					console.log("Illegal card (" +pc+ "), skipping...");
 					genNextCard(rand, i, ie, is);
 					return;
 				}
@@ -81,7 +81,7 @@
 							"height='80' " +
 							"onmouseover='setBigImg(\""+pc+"\")'" + 
 							"/>" +
-							"<\a>"
+							"</a>"
 						);
 
 						is++;
@@ -102,7 +102,7 @@
 						"height='80' " +
 						"onmouseover='setBigImg(\""+pc+"\")'" + 
 						"/>" +
-						"<\a>"
+						"</a>"
 					);
 
 					ie++;
@@ -127,6 +127,64 @@
 		//=> 50ms timeout
 		//(i use 100ms just to be sure)
 		//(generates 10 cards per second)
+	}
+
+	function getNextCardPack(rand, i) {
+
+		var rndIndex = Math.floor(rand() * passcodes.length);
+		var pc = passcodes[rndIndex];
+
+		if (pc[0] == '0') {
+			pc = pc.substring(1,pc.length);
+		}
+
+		setTimeout(function(pc, i) {
+			$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + pc, function(data) {
+				
+				var whereToPutIt = '#main';
+				
+				if (data[0]["type"] == "Token" || 
+				data[0]["type"] == "Skill Card" || 
+				data[0]["desc"].includes("win the Match")) {
+					console.log("Illegal card (" +pc+ "), skipping...");
+					getNextCardPack(rand, i);
+					return;
+				}
+
+				//when rolling 5th card, don't accept it if its not at least 1$ on tcg player
+				if (i == 4 && parseFloat(data[0].card_prices["tcgplayer_price"]) < 1.0) {
+					console.log("Not a rare card (" + pc + "), skipping...");
+					getNextCardPack(rand, i);
+					return;
+				}
+
+				$('#main').append(
+					"<a style='text-decoration:none'" +
+					"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
+					"<img " +
+					"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+					"height='80' " +
+					"onmouseover='setBigImg(\""+pc+"\")'" + 
+					"/>" +
+					"</a>"
+				);
+
+				$('#packList').append(
+					"<li>"+data[0]["name"]+"</li>"
+				);
+
+				i++;
+
+				if (i < 5) {
+					getNextCardPack(rand, i);
+				} else {
+					var packNum = parseInt($('#packNumber').val());
+					$('#msg').text("Pack #" + packNum + " generated!");
+					$('#packNumber').val(packNum + 1);
+				}
+
+			});
+		}, 100, pc, i);
 	}
 
 
@@ -168,38 +226,11 @@
 		$('#extra').empty();
 		$('#side').empty();
 		$('#downloadDeckBtn').css('display', 'none');
-		$('#msg').text("");
-
-		var i = 0;
-		do {
-			
-			var rndIndex = Math.floor(rand() * passcodes.length);
-			var pc = passcodes[rndIndex];
-
-			if (pc[0] == '0') {
-				pc = pc.substring(1,pc.length);
-			}
-
-			//todo: check card validity
-
-			$('#main').append(
-				"<a style='text-decoration:none'" +
-				"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
-				"<img " +
-				"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
-				"height='80' " +
-				"onmouseover='setBigImg(\""+pc+"\")'" + 
-				"/>" +
-				"<\a>"
-			);
-
-			i++;
-
-		} while (i < 5);
-		
 		var packNum = parseInt($('#packNumber').val());
-		$('#msg').text("Pack #" + packNum + " generated!");
-		$('#packNumber').val(packNum + 1);
+		$('#msg').text("Generating Pack #"+packNum+" ...");
+		$('#packList').empty();
+
+		getNextCardPack(rand, 0);
 	}
 
 	function setBigImg(pc) {
@@ -242,6 +273,7 @@
 	<div id='extra'></div><br/>
 	<div id='side'></div><br/>
 	<span id='msg'></span><br/>
+	<ul id='packList' style='list-style-type: none; padding-left: 0px;'></ul>
 	<button id='downloadDeckBtn' onclick='downloadDeck()' style="display:none;">Download Deck</button><br/>
 </body>
 </html>
