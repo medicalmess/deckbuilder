@@ -113,7 +113,7 @@
 				}
 			
 				if (i < 40  || ie < 15 || is < 15) {
-					$('#msg').text("Generating Deck ... (m"+i+"/e"+ie+"/s"+is+")");
+					$('#msg').text("Building Deck ... (m"+i+"/e"+ie+"/s"+is+")");
 					genNextCard(rand, i, ie, is);
 				} else {
 					finalString = mainString + extraStirng + sideString;
@@ -179,7 +179,7 @@
 					getNextCardPack(rand, i);
 				} else {
 					var packNum = parseInt($('#packNumber').val());
-					$('#msg').text("Pack #" + packNum + " generated!");
+					$('#msg').text("Pack #" + packNum + " opened!");
 					$('#packNumber').val(packNum + 1);
 				}
 
@@ -204,7 +204,7 @@
 		$('#extra').empty();
 		$('#side').empty();
 		$('#downloadDeckBtn').css('display', 'none');
-		$('#msg').text("Generating Deck...");
+		$('#msg').text("Building Deck...");
 		$('#packList').empty();
 
 		genNextCard(rand, 0, 0, 0);
@@ -228,7 +228,7 @@
 		$('#side').empty();
 		$('#downloadDeckBtn').css('display', 'none');
 		var packNum = parseInt($('#packNumber').val());
-		$('#msg').text("Generating Pack #"+packNum+" ...");
+		$('#msg').text("Opening pack #"+packNum+" ...");
 		$('#packList').empty();
 
 		getNextCardPack(rand, 0);
@@ -256,7 +256,7 @@
 </head>
 <body>
 	<div
-		style='position:absolute; left:700'>
+		style='position:absolute; left:680'>
 		<a 
 			target='_blank'
 			href='https://github.com/medicalmess/deckbuilder'>source on github</a>
@@ -264,11 +264,11 @@
 		<img 
 			id='bigImg' height="500" />
 	</div>
-	<span>Enter your username: </span>
+	<span>Post number: </span>
 	<input type='text' id='usernameInput'/>
-	<button id='genDeckBtn' onclick='genDeck()'>Generate Deck</button>
-	<input id='packNumber' type="number" min="1" value="1" style='width: 50;'>
-	<button id='genPackBtn' onclick='genPack()'>Generate Next Booster Pack</button>
+	<button id='genDeckBtn' onclick='genDeck()'>Build Deck</button>
+	<input id='packNumber' type="number" min="1" value="1" style='width: 60;'>
+	<button id='genPackBtn' onclick='genPack()'>Open a Pack</button>
 	<div style='margin-top:5px;'></div>
 	<div id='main'></div><br/>
 	<div id='extra'></div><br/>
