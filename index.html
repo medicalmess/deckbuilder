@@ -151,6 +151,9 @@
 					return;
 				}
 
+
+				var cardImagePath = data[0]["card_images"][0]["image_url"];
+
 				//rare card
 				if (i == 4 && parseInt(data[0].views) < 60000) {
 					console.log("Not a rare card (" + pc + "), skipping...");
