@@ -47,7 +47,7 @@
 					whereToPutIt = '#extra';
 				}
 
-
+				var cardImagePath = data[0]["card_images"][0]["image_url"];
 				
 
 
@@ -58,7 +58,7 @@
 							"<a style='text-decoration:none'" +
 							"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
 							"<img " +
-							"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+							"src=" + cardImagePath + " " +
 							"height='80' " +
 							"onmouseover='setBigImg(\""+pc+"\")'" + 
 							"/>" +
@@ -77,7 +77,7 @@
 							"<a style='text-decoration:none'" +
 							"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
 							"<img " +
-							"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+							"src=" + cardImagePath + " " +
 							"height='80' " +
 							"onmouseover='setBigImg(\""+pc+"\")'" + 
 							"/>" +
@@ -98,7 +98,7 @@
 						"<a style='text-decoration:none'" +
 						"href='https://db.ygoprodeck.com/card/?search=" + pc + "' target='_blank'> " +
 						"<img " +
-						"src='https://ygoprodeck.com/pics/" + pc + ".jpg' " +
+						"src=" + cardImagePath + " " +
 						"height='80' " +
 						"onmouseover='setBigImg(\""+pc+"\")'" + 
 						"/>" +
@@ -248,7 +248,31 @@
 		document.body.removeChild(element);
   	}
 
+
+	function changeTheme() {
+		$('body').toggleClass("darkBody");
+		$('.txt').toggleClass("darkText");
+		$('.hyperlink').toggleClass("darkHyperLink");
+	
+	}
+
 </script>
+<style>
+
+.darkBody {
+	background-color: #333;
+}
+.darkText {
+	color: #fff;
+}
+.darkHyperLink:link {
+	color: #f77;
+}
+.darkHyperLink:visited {
+	color: #faa;
+}
+
+</style>
 
 <html>
 <head>
@@ -258,13 +282,15 @@
 	<div
 		style='position:absolute; left:680'>
 		<a 
+			class='hyperlink'
 			target='_blank'
 			href='https://github.com/medicalmess/deckbuilder'>source on github</a>
+		<a class='hyperlink' href="javascript:changeTheme()">change theme</a>
 		<br/>	
 		<img 
 			id='bigImg' height="500" />
 	</div>
-	<span>Post number: </span>
+	<span class='txt'>Post number: </span>
 	<input type='text' id='usernameInput'/>
 	<button id='genDeckBtn' onclick='genDeck()'>Build Deck</button>
 	<input id='packNumber' type="number" min="1" value="1" style='width: 60;'>
@@ -273,8 +299,8 @@
 	<div id='main'></div><br/>
 	<div id='extra'></div><br/>
 	<div id='side'></div><br/>
-	<span id='msg'></span><br/>
-	<ul id='packList' style='list-style-type: none; padding-left: 0px;'></ul>
+	<span id='msg' class='txt'></span><br/>
+	<ul id='packList' style='list-style-type: none; padding-left: 0px;' class='txt'></ul>
 	<button id='downloadDeckBtn' onclick='downloadDeck()' style="display:none;">Download Deck</button><br/>
 </body>
 </html>
