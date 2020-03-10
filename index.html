@@ -121,6 +121,10 @@
 
 					$('#msg').text("Done!");
 				}
+			})
+			.fail(function(){
+				console.log("Failed to load "+pc)
+				genNextCard(rand, i, ie, is);
 			});
 		}, 100, pc, i, ie, is);
 		//20 calls allowed per second
@@ -186,6 +190,10 @@
 					$('#packNumber').val(packNum + 1);
 				}
 
+			})
+			.fail(function(){
+				console.log("Failed to load "+pc)
+				getNextCardPack(rand, i);
 			});
 		}, 100, pc, i);
 	}
