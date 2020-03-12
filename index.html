@@ -375,7 +375,7 @@
 	function genDeck() {
 
 		if ($.trim($('#usernameInput').val()) == '') {
-			alert("Enter username!");
+			alert("Enter post number!");
 			return;
 		}
 
@@ -387,6 +387,10 @@
 		$('#main').empty();
 		$('#extra').empty();
 		$('#side').empty();
+		mainString = "#created by deckbuilder\r\n#main\r\n";
+		extraStirng = "#extra\r\n";
+		sideString = "!side\r\n"
+		finalString = "";
 		$('#downloadDeckBtn').css('display', 'none');
 		$('#msg').text("Building Deck...");
 		$('#packList').empty();
