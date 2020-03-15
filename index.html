@@ -1,6 +1,7 @@
 <script type="text/javascript" src="jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="passcodes.js"></script>
 <script type="text/javascript" src="random.js"></script>
+<script type="text/javascript" src="namedictionary.js"></script>
 <script type="text/javascript">
 
 	var mainString = "#created by deckbuilder\r\n#main\r\n";
@@ -121,6 +122,119 @@
 
 					$('#msg').text("Done!");
 				}
+			})			
+			.fail(function(){				
+				if(namedictionary[pc]!=undefined){
+					setTimeout(function(pc, i) {
+						$.getJSON("https://db.ygoprodeck.com/api/v6/cardinfo.php?name="+namedictionary[pc].replace(" ","%20"), function(namedata) {
+							setTimeout(function(pc, i) {
+								$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + namedata[0]["id"], function(data) {
+									
+									console.log("Rerolling "+namedictionary[pc]+" with DN passcode "+pc+" as "+namedata[0]["id"])
+																		
+									var whereToPutIt = '#main';
+									
+									if (data[0]["type"] == "Token" || 
+									data[0]["type"] == "Skill Card" || 
+									data[0]["desc"].includes("win the Match")) {
+										console.log("Illegal card (" +namedata[0]["id"]+ "), skipping...");
+										genNextCard(rand, i, ie, is);
+										return;
+									}
+
+									if (data[0]["type"].includes("Synchro") ||
+									data[0]["type"].includes("Fusion") ||
+									data[0]["type"].includes("XYZ") ||
+									data[0]["type"].includes("Link")) {
+										whereToPutIt = '#extra';
+									}
+
+									var cardImagePath = data[0]["card_images"][0]["image_url"];
+									
+
+
+									if (whereToPutIt == '#main') {
+
+										if (i < 40) {
+											$('#main').append(
+												"<a style='text-decoration:none'" +
+												"href='https://db.ygoprodeck.com/card/?search=" + namedata[0]["id"] + "' target='_blank'> " +
+												"<img " +
+												"src=" + cardImagePath + " " +
+												"height='80' " +
+												"onmouseover='setBigImg(\""+namedata[0]["id"]+"\")'" + 
+												"/>" +
+												"<\a>"
+											);
+
+											i++;
+											if ((i) % 10 == 0) {
+												$("#main").append("<br\>");
+											}
+
+											mainString += (pc + "\r\n");
+
+										} else if (is < 15) {
+											$('#side').append(
+												"<a style='text-decoration:none'" +
+												"href='https://db.ygoprodeck.com/card/?search=" + namedata[0]["id"] + "' target='_blank'> " +
+												"<img " +
+												"src=" + cardImagePath + " " +
+												"height='80' " +
+												"onmouseover='setBigImg(\""+namedata[0]["id"]+"\")'" + 
+												"/>" +
+												"</a>"
+											);
+
+											is++;
+											if ((is) % 10 == 0) {
+												$("#side").append("<br\>");
+											}
+
+											sideString += (pc + "\r\n");
+										}
+
+									} else if (whereToPutIt == '#extra' && ie < 15) {
+
+										$('#extra').append(
+											"<a style='text-decoration:none'" +
+											"href='https://db.ygoprodeck.com/card/?search=" + namedata[0]["id"] + "' target='_blank'> " +
+											"<img " +
+											"src=" + cardImagePath + " " +
+											"height='80' " +
+											"onmouseover='setBigImg(\""+namedata[0]["id"]+"\")'" + 
+											"/>" +
+											"</a>"
+										);
+
+										ie++;
+										if ((ie) % 10 == 0) {
+											$("#extra").append("<br\>");
+										}
+										extraStirng += (pc + "\r\n");
+									}
+								
+									if (i < 40  || ie < 15 || is < 15) {
+										$('#msg').text("Building Deck ... (m"+i+"/e"+ie+"/s"+is+")");
+										genNextCard(rand, i, ie, is);
+									} else {
+										finalString = mainString + extraStirng + sideString;
+										$('#downloadDeckBtn').css('display', 'block');
+
+										$('#msg').text("Done!");
+									}
+								})
+							}, 100, pc, i, ie, is);	
+						})
+						.fail(function(){
+							$('#error').append("Unable to find "+namedictionary[pc]+" ("+pc+")"+"<br\>");
+							genNextCard(rand, i, ie, is);
+						});
+					}, 100, pc, i, ie, is);
+				} else {
+					$('#error').append("Unknown card passcode "+pc+"<br\>");
+					genNextCard(rand, i, ie, is);
+				}		
 			});
 		}, 100, pc, i, ie, is);
 		//20 calls allowed per second
@@ -186,15 +300,82 @@
 					$('#packNumber').val(packNum + 1);
 				}
 
+			})
+			.fail(function(){
+				if(namedictionary[pc]!=undefined){
+					//we have the name now
+					setTimeout(function(pc, i) {
+						$.getJSON("https://db.ygoprodeck.com/api/v6/cardinfo.php?name="+namedictionary[pc].replace(" ","%20"), function(namedata) {
+							setTimeout(function(pc, i) {
+								$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + namedata[0]["id"], function(data) {
+								
+								console.log("Rerolling "+namedictionary[pc]+" with DN passcode "+pc+" as "+namedata[0]["id"])
+								
+								var whereToPutIt = '#main';
+								
+								if (data[0]["type"] == "Token" || 
+								data[0]["type"] == "Skill Card" || 
+								data[0]["desc"].includes("win the Match")) {
+									console.log("Illegal card (" +namedata[0]["id"]+ "), skipping...");
+									getNextCardPack(rand, i);
+									return;
+								}
+
+
+								var cardImagePath = data[0]["card_images"][0]["image_url"];
+
+								//rare card
+								if (i == 4 && parseInt(data[0].views) < 60000) {
+									console.log("Not a rare card (" + namedata[0]["id"] + "), skipping...");
+									getNextCardPack(rand, i);
+									return;
+								}
+
+								$('#main').append(
+									"<a style='text-decoration:none'" +
+									"href='https://db.ygoprodeck.com/card/?search=" + namedata[0]["id"] + "' target='_blank'> " +
+									"<img " +
+									"src=" + cardImagePath + " " +
+									"height='80' " +
+									"onmouseover='setBigImg(\""+namedata[0]["id"]+"\")'" + 
+									"/>" +
+									"</a>"
+								);
+
+								$('#packList').append(
+									"<li>"+data[0]["name"]+"</li>"
+								);
+
+								i++;
+
+								if (i < 5) {
+									getNextCardPack(rand, i);
+								} else {
+									var packNum = parseInt($('#packNumber').val());
+									$('#msg').text("Pack #" + packNum + " opened!");
+									$('#packNumber').val(packNum + 1);
+								}
+							})	
+						}, 100, pc, i);	
+						})
+						.fail(function(){
+							$('#error').append("Unable to find "+namedictionary[pc]+" ("+pc+")"+"<br\>");
+							getNextCardPack(rand, i);
+						});
+					}, 100, pc, i);
+				} else {
+					$('#error').append("Unknown card passcode "+pc+"<br\>");
+					getNextCardPack(rand, i);
+				}
+				
 			});
 		}, 100, pc, i);
 	}
 
-
 	function genDeck() {
 
 		if ($.trim($('#usernameInput').val()) == '') {
-			alert("Enter username!");
+			alert("Enter post number!");
 			return;
 		}
 
@@ -206,6 +387,10 @@
 		$('#main').empty();
 		$('#extra').empty();
 		$('#side').empty();
+		mainString = "#created by deckbuilder\r\n#main\r\n";
+		extraStirng = "#extra\r\n";
+		sideString = "!side\r\n"
+		finalString = "";
 		$('#downloadDeckBtn').css('display', 'none');
 		$('#msg').text("Building Deck...");
 		$('#packList').empty();
@@ -274,6 +459,10 @@
 .darkHyperLink:visited {
 	color: #faa;
 }
+#error{
+	color:#FF0000;
+	font-weight: bold;
+}
 
 </style>
 
@@ -287,7 +476,7 @@
 		<a 
 			class='hyperlink'
 			target='_blank'
-			href='https://github.com/medicalmess/deckbuilder'>source on github</a>
+			href='https://github.com/anotherrandnon/deckbuilder'>source on github</a>
 		<a class='hyperlink' href="javascript:changeTheme()">change theme</a>
 		<br/>	
 		<img 
@@ -304,6 +493,7 @@
 	<div id='side'></div><br/>
 	<span id='msg' class='txt'></span><br/>
 	<ul id='packList' style='list-style-type: none; padding-left: 0px;' class='txt'></ul>
+	<div id='error'></div><br/>
 	<button id='downloadDeckBtn' onclick='downloadDeck()' style="display:none;">Download Deck</button><br/>
 </body>
 </html>
