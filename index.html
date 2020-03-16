@@ -72,6 +72,10 @@
 						}
 
 						mainString += (pc + "\r\n");
+						
+						if (namedictionary[pc]==undefined){
+							$('#error').append(data[0]["name"]+" may not import properly<br\>")
+						}
 
 					} else if (is < 15) {
 						$('#side').append(
@@ -91,6 +95,10 @@
 						}
 
 						sideString += (pc + "\r\n");
+						
+						if (namedictionary[pc]==undefined){
+							$('#error').append(data[0]["name"]+" may not import properly<br\>")
+						}
 					}
 
 				} else if (whereToPutIt == '#extra' && ie < 15) {
@@ -111,6 +119,10 @@
 						$("#extra").append("<br\>");
 					}
 					extraStirng += (pc + "\r\n");
+					
+					if (namedictionary[pc]==undefined){
+						$('#error').append(data[0]["name"]+" may not import properly<br\>")
+					}
 				}
 			
 				if (i < 40  || ie < 15 || is < 15) {
