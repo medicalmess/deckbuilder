@@ -710,7 +710,7 @@ var namedictionary={
  6400512:"Cyber Commander",
  6417578:"El Shaddoll Fusion",
  6430659:"Infected Mail",
- 6438003:"Senka Schemer - Jia Wen",
+ 6438003:"Ancient Warriors - Scheming Jia Wen",
  6442944:"Kaiser Sea Snake",
  6459419:"Amazoness Shamanism",
  6471156:"Perform Puppet",
