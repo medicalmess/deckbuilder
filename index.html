@@ -29,26 +29,25 @@
 		}
 
 		setTimeout(function(pc, i, ie, is) {
-			$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + pc, function(data) {
+			$.getJSON("https://db.ygoprodeck.com/api/v7/cardinfo.php?id=" + pc, function(data) {
 				
 				var whereToPutIt = '#main';
-				
-				if (data[0]["type"] == "Token" || 
-				data[0]["type"] == "Skill Card" || 
-				data[0]["desc"].includes("win the Match")) {
+				if (data["data"][0]["type"] == "Token" || 
+				data["data"][0]["type"] == "Skill Card" || 
+				data["data"][0]["desc"].includes("win the Match")) {
 					console.log("Illegal card (" +pc+ "), skipping...");
 					genNextCard(rand, i, ie, is);
 					return;
 				}
 
-				if (data[0]["type"].includes("Synchro") ||
-				data[0]["type"].includes("Fusion") ||
-				data[0]["type"].includes("XYZ") ||
-				data[0]["type"].includes("Link")) {
+				if (data["data"][0]["type"].includes("Synchro") ||
+				data["data"][0]["type"].includes("Fusion") ||
+				data["data"][0]["type"].includes("XYZ") ||
+				data["data"][0]["type"].includes("Link")) {
 					whereToPutIt = '#extra';
 				}
 
-				var cardImagePath = data[0]["card_images"][0]["image_url"];
+				var cardImagePath = data["data"][0]["card_images"][0]["image_url"];
 				
 
 
@@ -74,7 +73,7 @@
 						mainString += (pc + "\r\n");
 						
 						if (namedictionary[pc]==undefined){
-							$('#error').append(data[0]["name"]+" may not import properly<br\>")
+							$('#error').append(data["data"][0]["name"]+" may not import properly<br\>")
 						}
 
 					} else if (is < 15) {
@@ -97,7 +96,7 @@
 						sideString += (pc + "\r\n");
 						
 						if (namedictionary[pc]==undefined){
-							$('#error').append(data[0]["name"]+" may not import properly<br\>")
+							$('#error').append(data["data"][0]["name"]+" may not import properly<br\>")
 						}
 					}
 
@@ -121,7 +120,7 @@
 					extraStirng += (pc + "\r\n");
 					
 					if (namedictionary[pc]==undefined){
-						$('#error').append(data[0]["name"]+" may not import properly<br\>")
+						$('#error').append(data["data"][0]["name"]+" may not import properly<br\>")
 					}
 				}
 			
@@ -138,30 +137,30 @@
 			.fail(function(){				
 				if(namedictionary[pc]!=undefined){
 					setTimeout(function(pc, i) {
-						$.getJSON("https://db.ygoprodeck.com/api/v6/cardinfo.php?name="+namedictionary[pc].replace(" ","%20"), function(namedata) {
+						$.getJSON("https://db.ygoprodeck.com/api/v7/cardinfo.php?id="+namedictionary[pc].replace(" ","%20"), function(namedata) {
 							setTimeout(function(pc, i) {
-								$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + namedata[0]["id"], function(data) {
+								$.getJSON("https://db.ygoprodeck.com/api/v7/cardinfo.php?id=" + namedata["data"][0]["id"], function(data) {
 									
-									console.log("Rerolling "+namedictionary[pc]+" with DN passcode "+pc+" as "+namedata[0]["id"])
+									console.log("Rerolling "+namedictionary[pc]+" with DN passcode "+pc+" as "+namedata["data"][0]["id"])
 																		
 									var whereToPutIt = '#main';
 									
-									if (data[0]["type"] == "Token" || 
-									data[0]["type"] == "Skill Card" || 
-									data[0]["desc"].includes("win the Match")) {
-										console.log("Illegal card (" +namedata[0]["id"]+ "), skipping...");
+									if (data["data"][0]["type"] == "Token" || 
+									data["data"][0]["type"] == "Skill Card" || 
+									data["data"][0]["desc"].includes("win the Match")) {
+										console.log("Illegal card (" +namedata["data"][0]["id"]+ "), skipping...");
 										genNextCard(rand, i, ie, is);
 										return;
 									}
 
-									if (data[0]["type"].includes("Synchro") ||
-									data[0]["type"].includes("Fusion") ||
-									data[0]["type"].includes("XYZ") ||
-									data[0]["type"].includes("Link")) {
+									if (data["data"][0]["type"].includes("Synchro") ||
+									data["data"][0]["type"].includes("Fusion") ||
+									data["data"][0]["type"].includes("XYZ") ||
+									data["data"][0]["type"].includes("Link")) {
 										whereToPutIt = '#extra';
 									}
 
-									var cardImagePath = data[0]["card_images"][0]["image_url"];
+									var cardImagePath = data["data"][0]["card_images"][0]["image_url"];
 									
 
 
@@ -170,11 +169,11 @@
 										if (i < 40) {
 											$('#main').append(
 												"<a style='text-decoration:none'" +
-												"href='https://db.ygoprodeck.com/card/?search=" + namedata[0]["id"] + "' target='_blank'> " +
+												"href='https://db.ygoprodeck.com/card/?search=" + namedata["data"][0]["id"] + "' target='_blank'> " +
 												"<img " +
 												"src=" + cardImagePath + " " +
 												"height='80' " +
-												"onmouseover='setBigImg(\""+namedata[0]["id"]+"\")'" + 
+												"onmouseover='setBigImg(\""+namedata["data"][0]["id"]+"\")'" + 
 												"/>" +
 												"<\a>"
 											);
@@ -189,11 +188,11 @@
 										} else if (is < 15) {
 											$('#side').append(
 												"<a style='text-decoration:none'" +
-												"href='https://db.ygoprodeck.com/card/?search=" + namedata[0]["id"] + "' target='_blank'> " +
+												"href='https://db.ygoprodeck.com/card/?search=" + namedata["data"][0]["id"] + "' target='_blank'> " +
 												"<img " +
 												"src=" + cardImagePath + " " +
 												"height='80' " +
-												"onmouseover='setBigImg(\""+namedata[0]["id"]+"\")'" + 
+												"onmouseover='setBigImg(\""+namedata["data"][0]["id"]+"\")'" + 
 												"/>" +
 												"</a>"
 											);
@@ -210,11 +209,11 @@
 
 										$('#extra').append(
 											"<a style='text-decoration:none'" +
-											"href='https://db.ygoprodeck.com/card/?search=" + namedata[0]["id"] + "' target='_blank'> " +
+											"href='https://db.ygoprodeck.com/card/?search=" + namedata["data"][0]["id"] + "' target='_blank'> " +
 											"<img " +
 											"src=" + cardImagePath + " " +
 											"height='80' " +
-											"onmouseover='setBigImg(\""+namedata[0]["id"]+"\")'" + 
+											"onmouseover='setBigImg(\""+namedata["data"][0]["id"]+"\")'" + 
 											"/>" +
 											"</a>"
 										);
@@ -265,23 +264,23 @@
 		}
 
 		setTimeout(function(pc, i) {
-			$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + pc, function(data) {
+			$.getJSON("https://db.ygoprodeck.com/api/v7/cardinfo.php?id=" + pc, function(data) {
 				
 				var whereToPutIt = '#main';
-				
-				if (data[0]["type"] == "Token" || 
-				data[0]["type"] == "Skill Card" || 
-				data[0]["desc"].includes("win the Match")) {
+
+				if (data["data"][0]["type"] == "Token" || 
+				data["data"][0]["type"] == "Skill Card" || 
+				data["data"][0]["desc"].includes("win the Match")) {
 					console.log("Illegal card (" +pc+ "), skipping...");
 					getNextCardPack(rand, i);
 					return;
 				}
 
 
-				var cardImagePath = data[0]["card_images"][0]["image_url"];
+				var cardImagePath = data["data"][0]["card_images"][0]["image_url"];
 
 				//rare card
-				if (i == 4 && parseInt(data[0].views) < 60000) {
+				if (i == 4 && parseInt(data["data"][0].views) < 60000) {
 					console.log("Not a rare card (" + pc + "), skipping...");
 					getNextCardPack(rand, i);
 					return;
@@ -299,7 +298,7 @@
 				);
 
 				$('#packList').append(
-					"<li>"+data[0]["name"]+"</li>"
+					"<li>"+data["data"][0]["name"]+"</li>"
 				);
 
 				i++;
@@ -317,45 +316,45 @@
 				if(namedictionary[pc]!=undefined){
 					//we have the name now
 					setTimeout(function(pc, i) {
-						$.getJSON("https://db.ygoprodeck.com/api/v6/cardinfo.php?name="+namedictionary[pc].replace(" ","%20"), function(namedata) {
+						$.getJSON("https://db.ygoprodeck.com/api/v7/cardinfo.php?id="+namedictionary[pc].replace(" ","%20"), function(namedata) {
 							setTimeout(function(pc, i) {
-								$.getJSON("https://db.ygoprodeck.com/api/v5/cardinfo.php?name=" + namedata[0]["id"], function(data) {
+								$.getJSON("https://db.ygoprodeck.com/api/v7/cardinfo.php?id=" + namedata["data"][0]["id"], function(data) {
 								
-								console.log("Rerolling "+namedictionary[pc]+" with DN passcode "+pc+" as "+namedata[0]["id"])
+								console.log("Rerolling "+namedictionary[pc]+" with DN passcode "+pc+" as "+namedata["data"][0]["id"])
 								
 								var whereToPutIt = '#main';
 								
-								if (data[0]["type"] == "Token" || 
-								data[0]["type"] == "Skill Card" || 
-								data[0]["desc"].includes("win the Match")) {
-									console.log("Illegal card (" +namedata[0]["id"]+ "), skipping...");
+								if (data["data"][0]["type"] == "Token" || 
+								data["data"][0]["type"] == "Skill Card" || 
+								data["data"][0]["desc"].includes("win the Match")) {
+									console.log("Illegal card (" +namedata["data"][0]["id"]+ "), skipping...");
 									getNextCardPack(rand, i);
 									return;
 								}
 
 
-								var cardImagePath = data[0]["card_images"][0]["image_url"];
+								var cardImagePath = data["data"][0]["card_images"][0]["image_url"];
 
 								//rare card
-								if (i == 4 && parseInt(data[0].views) < 60000) {
-									console.log("Not a rare card (" + namedata[0]["id"] + "), skipping...");
+								if (i == 4 && parseInt(data["data"][0].views) < 60000) {
+									console.log("Not a rare card (" + namedata["data"][0]["id"] + "), skipping...");
 									getNextCardPack(rand, i);
 									return;
 								}
 
 								$('#main').append(
 									"<a style='text-decoration:none'" +
-									"href='https://db.ygoprodeck.com/card/?search=" + namedata[0]["id"] + "' target='_blank'> " +
+									"href='https://db.ygoprodeck.com/card/?search=" + namedata["data"][0]["id"] + "' target='_blank'> " +
 									"<img " +
 									"src=" + cardImagePath + " " +
 									"height='80' " +
-									"onmouseover='setBigImg(\""+namedata[0]["id"]+"\")'" + 
+									"onmouseover='setBigImg(\""+namedata["data"][0]["id"]+"\")'" + 
 									"/>" +
 									"</a>"
 								);
 
 								$('#packList').append(
-									"<li>"+data[0]["name"]+"</li>"
+									"<li>"+data["data"][0]["name"]+"</li>"
 								);
 
 								i++;
